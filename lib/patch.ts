@@ -1,5 +1,6 @@
-import { applyContactLog, type ContactAction } from "@/lib/contact-log";
+import { applyContactLog, recordActivity, statusChangeSummary, type ContactAction } from "@/lib/contact-log";
 import { LeadError } from "@/lib/errors";
+import { formatDate, formatMoney } from "@/lib/format";
 import { appendNote } from "@/lib/lead-view";
 import type { Assignee, Lead, LeadAction, LeadPatch, LeadSchema } from "@/lib/types";
 
@@ -85,20 +86,25 @@ export function buildPatch(
   const notices: string[] = [];
   const nowIso = ctx.now.toISOString();
 
-  const stampLastAction = (preferences: string[]) => {
-    const match = choose(schema, "Last Action", preferences);
-    if (match) patch.lastAction = match;
-    if (canWrite(schema, "Last Action At")) patch.lastActionAt = nowIso;
-  };
-
   switch (action.type) {
     case "markRead": {
       if (lead.leadStatus !== "Unread") break;
-      const status = choose(schema, "Lead Status", ["Read"]);
-      if (status) patch.leadStatus = status;
-      else notices.push("Lead Status could not be set to Read.");
+      if (!canWrite(schema, "Lead Status")) {
+        notices.push("Lead Status could not be set to Read.");
+        break;
+      }
+      patch.leadStatus = "Read";
       if (canWrite(schema, "Read At") && !lead.readAt) patch.readAt = nowIso;
-      stampLastAction(["Marked Read"]);
+      recordActivity(lead, patch, ctx.now, statusChangeSummary(lead.leadStatus, "Read"), "Marked Read");
+      break;
+    }
+    case "unread": {
+      if (lead.leadStatus === "Unread") break;
+      if (!canWrite(schema, "Lead Status")) {
+        throw new LeadError("Lead Status is not on the Leads table.");
+      }
+      patch.leadStatus = "Unread";
+      recordActivity(lead, patch, ctx.now, statusChangeSummary(lead.leadStatus, "Unread"), "Marked Unread");
       break;
     }
     case "call":
@@ -108,18 +114,17 @@ export function buildPatch(
       Object.assign(patch, applyContactLog(lead, contact, ctx.now, null));
       break;
     }
-    case "called": {
+    case "called":
+    case "emailed":
+    case "qualified": {
+      const nextStatus = action.type === "called" ? "Called" : action.type === "emailed" ? "Emailed" : "Qualified";
       if (!canWrite(schema, "Lead Status")) {
         throw new LeadError("Lead Status is not on the Leads table.");
       }
-      patch.leadStatus = "Called";
-      break;
-    }
-    case "emailed": {
-      if (!canWrite(schema, "Lead Status")) {
-        throw new LeadError("Lead Status is not on the Leads table.");
-      }
-      patch.leadStatus = "Emailed";
+      if (action.type === "qualified") requireChoice(schema, "Lead Status", ["Qualified"], "Qualified");
+      if (lead.leadStatus === nextStatus) break;
+      patch.leadStatus = nextStatus;
+      recordActivity(lead, patch, ctx.now, statusChangeSummary(lead.leadStatus, nextStatus), "Status changed");
       break;
     }
     case "callOutcome": {
@@ -133,12 +138,8 @@ export function buildPatch(
       }
       patch.callOutcome = outcome;
       if (canWrite(schema, "Called At") && !lead.calledAt) patch.calledAt = nowIso;
-      const preferences = [...(CALL_OUTCOME_LAST_ACTION[outcome] ?? []), outcome];
-      stampLastAction(preferences);
-      break;
-    }
-    case "qualified": {
-      patch.leadStatus = requireChoice(schema, "Lead Status", ["Qualified"], "Qualified");
+      const matched = choose(schema, "Last Action", [...(CALL_OUTCOME_LAST_ACTION[outcome] ?? []), outcome]);
+      recordActivity(lead, patch, ctx.now, `Call outcome: ${outcome}`, matched ?? "Call outcome");
       break;
     }
     case "nonQualified": {
@@ -150,10 +151,13 @@ export function buildPatch(
       } else if (!choiceAllowed(schema, "Non-Qualified Reason", reason)) {
         throw new LeadError("That reason is not available.");
       }
-      patch.leadStatus = requireChoice(schema, "Lead Status", ["Non-Qualified"], "Non-Qualified");
+      const nextStatus = requireChoice(schema, "Lead Status", ["Non-Qualified"], "Non-Qualified");
+      if (lead.leadStatus === nextStatus && lead.nonQualifiedReason === reason) break;
+      patch.leadStatus = nextStatus;
       if (reasonFieldExists && canWrite(schema, "Non-Qualified Reason")) {
         patch.nonQualifiedReason = reason;
       }
+      recordActivity(lead, patch, ctx.now, statusChangeSummary(lead.leadStatus, nextStatus, reason), "Status changed");
       break;
     }
     case "closed": {
@@ -165,10 +169,13 @@ export function buildPatch(
       } else if (!choiceAllowed(schema, "Close Outcome", outcome)) {
         throw new LeadError("That close outcome is not available.");
       }
-      patch.leadStatus = requireChoice(schema, "Lead Status", ["Closed"], "Closed");
+      const nextStatus = requireChoice(schema, "Lead Status", ["Closed"], "Closed");
+      if (lead.leadStatus === nextStatus && lead.closeOutcome === outcome) break;
+      patch.leadStatus = nextStatus;
       if (outcomeFieldExists && canWrite(schema, "Close Outcome")) {
         patch.closeOutcome = outcome;
       }
+      recordActivity(lead, patch, ctx.now, statusChangeSummary(lead.leadStatus, nextStatus, outcome), "Status changed");
       break;
     }
     case "estimate": {
@@ -176,11 +183,12 @@ export function buildPatch(
         throw new LeadError("Estimate Sent At is not on the Leads table.");
       }
       patch.estimateSentAt = nowIso;
+      const amountLabel = action.amount == null ? "" : ` (${formatMoney(action.amount)})`;
       if (action.amount != null) {
         if (canWrite(schema, "Estimate Amount")) patch.estimateAmount = action.amount;
         else notices.push("Estimate Amount is not on the Leads table, so only the sent time was saved.");
       }
-      stampLastAction(["Estimate Sent"]);
+      recordActivity(lead, patch, ctx.now, `Estimate sent${amountLabel}`, "Estimate Sent");
       break;
     }
     case "followUp": {
@@ -191,7 +199,13 @@ export function buildPatch(
         throw new LeadError("Choose a follow-up date.");
       }
       patch.followUpDate = action.date;
-      if (action.date) stampLastAction(["Follow-up Scheduled"]);
+      recordActivity(
+        lead,
+        patch,
+        ctx.now,
+        action.date ? `Follow-up set to ${formatDate(action.date)}` : "Follow-up cleared",
+        action.date ? "Follow-up Scheduled" : "Follow-up cleared",
+      );
       break;
     }
     case "assign": {
@@ -202,6 +216,13 @@ export function buildPatch(
         throw new LeadError("That teammate is not available to assign.");
       }
       patch.assignedTo = action.assigneeId ? ctx.assignee : null;
+      recordActivity(
+        lead,
+        patch,
+        ctx.now,
+        action.assigneeId ? `Assigned to ${ctx.assignee?.name || "a teammate"}` : "Assignment cleared",
+        action.assigneeId ? "Assigned" : "Assignment cleared",
+      );
       break;
     }
     case "note": {
@@ -210,6 +231,7 @@ export function buildPatch(
       if (text.length > 4000) throw new LeadError("Keep the note under 4000 characters.");
       if (!canWrite(schema, "Notes")) throw new LeadError("Notes is not on the Leads table.");
       patch.notes = appendNote(lead.notes, text, ctx.now);
+      recordActivity(lead, patch, ctx.now, "Note added", "Note added");
       break;
     }
     default:

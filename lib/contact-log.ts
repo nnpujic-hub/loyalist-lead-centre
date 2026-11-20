@@ -32,6 +32,23 @@ export function activityLine(action: ContactAction, now: Date, actor: string | n
   return `${formatActivityStamp(now)} · ${LOG_LABEL[action]}${who}`;
 }
 
+export function summaryLine(summary: string, now: Date): string {
+  return `${formatActivityStamp(now)} · ${summary}`;
+}
+
+/** Prepend one activity line and refresh Last Action / Last Action At. */
+export function recordActivity(lead: Lead, patch: LeadPatch, now: Date, summary: string, lastAction: string): void {
+  patch.activityLog = prependActivity(patch.activityLog ?? lead.activityLog ?? "", summaryLine(summary, now));
+  patch.lastAction = lastAction;
+  patch.lastActionAt = now.toISOString();
+}
+
+export function statusChangeSummary(from: string, to: string, detail?: string): string {
+  const previous = from.trim() || "No status";
+  const extra = detail ? ` (${detail})` : "";
+  return `Status changed: ${previous} -> ${to}${extra}`;
+}
+
 export function applyContactLog(lead: Lead, action: ContactAction, now: Date, actor: string | null): LeadPatch {
   const nowIso = now.toISOString();
   const patch: LeadPatch = {

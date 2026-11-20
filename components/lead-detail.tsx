@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { ApiError, api } from "@/lib/api-client";
+import { activityTimeline } from "@/lib/activity-timeline";
 import { optimisticContact, type ContactAction } from "@/lib/contact-log";
 import { formatDateTime, formatDays, formatMoney } from "@/lib/format";
 import { isFollowUpDue } from "@/lib/lead-view";
@@ -145,6 +146,10 @@ export function LeadDetail({ id }: { id: string }) {
       if (action.type === "estimate") setAmount(payload.lead.estimateAmount?.toString() ?? "");
       if (action.type === "note") setDraft("");
       setNotice(payload.notices.length > 0 ? payload.notices.join(" ") : "Saved.");
+      if (action.type === "unread") {
+        router.push("/");
+        return;
+      }
     } catch (caught) {
       if (caught instanceof ApiError && caught.status === 401) {
         router.push("/login");
@@ -317,6 +322,15 @@ export function LeadDetail({ id }: { id: string }) {
                       Closed
                     </Button>
                   ) : null}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="border-accent text-accent"
+                    disabled={busy || lead.leadStatus === "Unread"}
+                    onClick={() => void perform({ type: "unread" })}
+                  >
+                    Mark as Unread
+                  </Button>
                 </div>
                 {showReasons ? (
                   <fieldset className="mt-4">
@@ -484,10 +498,6 @@ export function LeadDetail({ id }: { id: string }) {
                 <blockquote className="mt-2 border-l-4 border-accent bg-paper px-4 py-3 text-sm leading-6">
                   {lead.clientComments || "No comments on the form."}
                 </blockquote>
-                <h3 className="mt-5 text-sm font-semibold">Activity log</h3>
-                <pre className="mt-2 whitespace-pre-wrap rounded-xl bg-paper px-4 py-3 font-sans text-sm leading-6">
-                  {lead.activityLog || "No calls, messages, or emails recorded yet."}
-                </pre>
                 <h3 className="mt-5 text-sm font-semibold">Team notes</h3>
                 <pre className="mt-2 whitespace-pre-wrap rounded-xl bg-paper px-4 py-3 font-sans text-sm leading-6">
                   {lead.notes || "No team notes yet."}
@@ -562,6 +572,23 @@ export function LeadDetail({ id }: { id: string }) {
                 </a>
               ) : null}
             </Section>
+
+            <section className="rounded-2xl border border-line bg-white p-4 shadow-sm sm:p-6">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-navy">History</p>
+              <h2 className="mt-1 font-display text-2xl uppercase tracking-wide">Activity</h2>
+              {activityTimeline(lead).length === 0 ? (
+                <p className="mt-4 text-sm text-muted">No activity yet</p>
+              ) : (
+                <ol className="mt-4 grid gap-4">
+                  {activityTimeline(lead).map((entry) => (
+                    <li key={entry.key} className="border-l-4 border-accent pl-4">
+                      <p className="text-sm font-semibold">{entry.action}</p>
+                      {entry.timeLabel ? <p className="mt-1 text-sm text-muted">{entry.timeLabel}</p> : null}
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </section>
           </>
         ) : null}
       </main>
