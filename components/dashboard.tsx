@@ -15,6 +15,7 @@ const FILTERS = [
   { id: "Unread", label: "Unread" },
   { id: "Read", label: "Read" },
   { id: "Called", label: "Called" },
+  { id: "Emailed", label: "Emailed" },
   { id: "Qualified", label: "Qualified" },
   { id: "Non-Qualified", label: "Non-Qualified" },
   { id: "Closed", label: "Closed" },
@@ -93,6 +94,7 @@ export function Dashboard() {
     Unread: mine.filter((lead) => lead.leadStatus === "Unread").length,
     Read: mine.filter((lead) => lead.leadStatus === "Read").length,
     Called: mine.filter((lead) => lead.leadStatus === "Called").length,
+    Emailed: mine.filter((lead) => lead.leadStatus === "Emailed").length,
     Qualified: mine.filter((lead) => lead.leadStatus === "Qualified").length,
     "Non-Qualified": mine.filter((lead) => lead.leadStatus === "Non-Qualified").length,
     Closed: mine.filter((lead) => lead.leadStatus === "Closed").length,
@@ -147,7 +149,7 @@ export function Dashboard() {
           </p>
         ) : null}
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-8">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {FILTERS.map((item) => {
             const active = filter === item.id;
             const count = counts[item.id];

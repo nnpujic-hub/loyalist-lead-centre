@@ -81,7 +81,7 @@ test("call records Called status, timestamp, last action, and the log", () => {
   assert.equal(patch.emailedAt, undefined);
 });
 
-test("facebook and email stamp their own fields and do not change status", () => {
+test("facebook does not change status; email sets Emailed", () => {
   const facebook = applyContactLog(lead({ activityLog: "" }), "facebook", when, null);
   assert.equal(facebook.lastAction, "Messaged on Facebook");
   assert.equal(facebook.messagedAt, when.toISOString());
@@ -90,6 +90,7 @@ test("facebook and email stamp their own fields and do not change status", () =>
 
   const email = applyContactLog(lead({ activityLog: "" }), "email", when, "morgan@loyalisthomesinc.com");
   assert.equal(email.lastAction, "Emailed");
+  assert.equal(email.leadStatus, "Emailed");
   assert.equal(email.emailedAt, when.toISOString());
   assert.equal(email.activityLog, "2026-11-19 8:55 PM ET · Email · morgan@loyalisthomesinc.com");
 });

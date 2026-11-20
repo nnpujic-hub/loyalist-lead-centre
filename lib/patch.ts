@@ -115,6 +115,13 @@ export function buildPatch(
       patch.leadStatus = "Called";
       break;
     }
+    case "emailed": {
+      if (!canWrite(schema, "Lead Status")) {
+        throw new LeadError("Lead Status is not on the Leads table.");
+      }
+      patch.leadStatus = "Emailed";
+      break;
+    }
     case "callOutcome": {
       const outcome = action.outcome.trim();
       if (!outcome) throw new LeadError("Choose a call outcome.");
