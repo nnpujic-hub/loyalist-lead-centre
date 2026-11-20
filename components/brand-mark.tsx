@@ -1,21 +1,12 @@
 import Image from "next/image";
 
-const size = { width: 2343, height: 706 };
-
-export function BrandMark({
-  tone,
-  className,
-}: {
-  tone: "light" | "dark";
-  className?: string;
-}) {
-  const onDark = tone === "dark";
+export function BrandMark({ className }: { className?: string }) {
   return (
     <Image
-      src={onDark ? "/logo-dark.png" : "/logo-light.png"}
-      alt="Loyalist Homes & Restoration"
-      width={size.width}
-      height={size.height}
+      src="/rbs-logo.png"
+      alt="Rural Building Solutions"
+      width={1375}
+      height={663}
       priority
       className={className}
     />
