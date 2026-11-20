@@ -103,7 +103,9 @@ To plug this into Loyalist Homes OS or an SSO provider, replace the login route 
 
 Actions update Leads only, with `typecast: true` where a select or collaborator value is sent:
 
-- Opening an Unread lead sets Lead Status to Read, Read At, and Last Action to Marked Read when that option exists.
+- Opening an Unread lead sets Lead Status to Read, Read At, and Last Action to Marked Read, and prepends `Status changed: Unread -> Read` to Activity Log.
+- Mark as Unread sets Lead Status back to Unread, logs the change, and returns to the lead list so opening the record does not immediately mark it Read again.
+- Status buttons, call outcomes, estimates, follow-up dates, assignment, and notes each prepend a timestamped Activity Log line and update Last Action and Last Action At.
 - Call opens the `tel:` link immediately, then records Called At, Last Action `Called`, Last Action At, and Lead Status Called. The line is prepended to Activity Log.
 - Reply on Facebook opens the inbox in a new tab and records Messaged At, Last Action `Messaged on Facebook`, and Last Action At.
 - Email opens `mailto:` and records Emailed At, Last Action `Emailed`, Last Action At, and Lead Status Emailed. Facebook does not change Lead Status.

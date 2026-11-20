@@ -61,6 +61,24 @@ export function formatActivityStamp(date = new Date()): string {
   return `${get("year")}-${get("month")}-${get("day")} ${hour}:${get("minute")} ${period} ET`;
 }
 
+/** `Nov 20, 2026, 7:10 AM EST` in America/Toronto. */
+export function formatTimelineStamp(date: Date): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: TORONTO,
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZoneName: "short",
+  }).formatToParts(date);
+  const get = (type: string) => parts.find((part) => part.type === type)?.value ?? "";
+  const period = get("dayPeriod").replace(/\./g, "").toUpperCase().startsWith("A") ? "AM" : "PM";
+  const zone = get("timeZoneName") || "ET";
+  return `${get("month")} ${get("day")}, ${get("year")}, ${Number(get("hour"))}:${get("minute")} ${period} ${zone}`;
+}
+
 export function formatDays(days: number | null): string {
   if (days == null) return "—";
   if (days === 0) return "Today";
