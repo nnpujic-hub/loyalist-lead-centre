@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
 import { ApiError, api } from "@/lib/api-client";
 import { safeNextPath } from "@/lib/lead-view";
+import { BrandMark } from "@/components/brand-mark";
 import { Button } from "@/components/button";
 
 export function LoginForm() {
@@ -32,20 +32,10 @@ export function LoginForm() {
 
   return (
     <div className="grid min-h-dvh lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
-      <section className="flex flex-col bg-ink px-6 py-10 text-white lg:px-12 lg:py-16">
-        <div className="w-fit rounded-2xl bg-white p-3">
-          <Image
-            src="/logo.png"
-            alt="Loyalist Homes Inc."
-            width={2058}
-            height={1268}
-            priority
-            className="h-16 w-auto max-w-[14rem] object-contain"
-          />
-        </div>
+      <section className="flex flex-col bg-black px-6 py-10 text-white lg:px-12 lg:py-16">
+        <BrandMark tone="dark" className="h-auto w-full max-w-lg" />
         <div className="mt-10 max-w-md">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-accent">Loyalist Homes Inc.</p>
-          <h1 className="mt-3 font-display text-5xl uppercase leading-[0.95] tracking-wide sm:text-6xl">Lead Centre</h1>
+          <h1 className="font-display text-5xl uppercase leading-[0.95] tracking-wide sm:text-6xl">Lead Centre</h1>
           <p className="mt-5 max-w-sm text-base leading-7 text-white/80">
             A clear desk for Meta leads. Call, write it down, and the next person on the team can see exactly where it stands.
           </p>
@@ -56,7 +46,7 @@ export function LoginForm() {
         <form onSubmit={onSubmit} className="mx-auto w-full max-w-md rounded-3xl border border-line bg-white p-6 shadow-sm sm:p-8">
           <h2 className="font-display text-3xl uppercase tracking-wide">Team sign in</h2>
           <p className="mt-2 text-sm leading-6 text-muted">
-            This desk is for the Loyalist Homes sales team. One shared password, on this device only.
+            This desk is for the Loyalist Homes &amp; Restoration sales team. One shared password, on this device only.
           </p>
           <label htmlFor="password" className="mt-6 block text-sm font-semibold">
             Team password

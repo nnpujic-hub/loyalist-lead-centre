@@ -1,9 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
+
+import { BrandMark } from "@/components/brand-mark";
 
 export function Shell({ demo = false, children }: { demo?: boolean; children: ReactNode }) {
   const router = useRouter();
@@ -19,21 +20,14 @@ export function Shell({ demo = false, children }: { demo?: boolean; children: Re
       <a href="#content" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-3 focus:py-2">
         Skip to content
       </a>
-      <header className="sticky top-0 z-20 border-b border-line bg-white/95 backdrop-blur">
-        <div className="h-1.5 bg-ink" />
+      <header className="sticky top-0 z-20 border-b border-line bg-white">
+        <div className="h-1.5 bg-black" />
         <div className="h-1 bg-accent" />
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
           <Link href="/" className="flex min-w-0 items-center gap-3">
-            <Image
-              src="/logo.png"
-              alt="Loyalist Homes Inc."
-              width={2058}
-              height={1268}
-              priority
-              className="h-12 w-auto max-w-[9.5rem] object-contain sm:h-14 sm:max-w-[11rem]"
-            />
-            <span className="min-w-0">
-              <span className="block font-display text-xl uppercase leading-none tracking-wide text-ink sm:text-2xl">
+            <BrandMark tone="light" className="h-10 w-auto sm:h-12" />
+            <span className="hidden min-w-0 sm:block">
+              <span className="block font-display text-xl uppercase leading-none tracking-wide text-ink">
                 Lead Centre
               </span>
               <span className="mt-1 block text-[11px] font-semibold uppercase tracking-[0.16em] text-navy">
@@ -59,7 +53,7 @@ export function Shell({ demo = false, children }: { demo?: boolean; children: Re
       </header>
       {children}
       <footer className="mx-auto max-w-6xl px-4 py-8 text-xs leading-5 text-muted">
-        <p>Loyalist Homes Inc. Times shown in Eastern Time (America/Toronto).</p>
+        <p>Loyalist Homes &amp; Restoration, a division of Loyalist Homes Group. Times shown in Eastern Time (America/Toronto).</p>
         <p className="mt-1">Calls, messages, and notes stay on the lead so the next person can pick it up.</p>
       </footer>
     </div>

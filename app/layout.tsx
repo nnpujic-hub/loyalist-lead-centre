@@ -18,10 +18,10 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   title: {
-    default: "Lead Centre · Loyalist Homes Inc.",
-    template: "%s · Loyalist Homes Inc.",
+    default: "Lead Centre · Loyalist Homes & Restoration",
+    template: "%s · Loyalist Homes & Restoration",
   },
-  description: "Sales desk for Loyalist Homes Inc. Meta leads.",
+  description: "Sales desk for Loyalist Homes & Restoration Meta leads.",
   robots: { index: false, follow: false },
 };
 
