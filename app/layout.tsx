@@ -16,13 +16,23 @@ const montserrat = Montserrat({
   display: "swap",
 });
 
+const metadataBase = new URL(
+  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000",
+);
+
 export const metadata: Metadata = {
+  metadataBase,
   title: {
-    default: "Lead Centre · Loyalist Homes & Restoration",
-    template: "%s · Loyalist Homes & Restoration",
+    default: "Lead Centre · Rural Building Solutions",
+    template: "%s · Rural Building Solutions",
   },
-  description: "Sales desk for Loyalist Homes & Restoration Meta leads.",
+  description: "Sales desk for Rural Building Solutions Meta leads.",
   robots: { index: false, follow: false },
+  openGraph: {
+    title: "Lead Centre · Rural Building Solutions",
+    description: "Sales desk for Rural Building Solutions Meta leads.",
+    images: [{ url: "/rbs-logo.png", alt: "Rural Building Solutions" }],
+  },
 };
 
 export const viewport: Viewport = {

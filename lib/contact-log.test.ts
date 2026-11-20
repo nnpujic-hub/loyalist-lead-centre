@@ -81,12 +81,12 @@ test("call records Called status, timestamp, last action, and the log", () => {
   assert.equal(patch.emailedAt, undefined);
 });
 
-test("facebook does not change status; email sets Emailed", () => {
-  const facebook = applyContactLog(lead({ activityLog: "" }), "facebook", when, null);
+test("facebook sets Messaged and email sets Emailed", () => {
+  const facebook = applyContactLog(lead({ activityLog: "", leadStatus: "Read" }), "facebook", when, null);
   assert.equal(facebook.lastAction, "Messaged on Facebook");
   assert.equal(facebook.messagedAt, when.toISOString());
-  assert.equal(facebook.leadStatus, undefined);
-  assert.equal(facebook.activityLog, "2026-11-19 8:55 PM ET · Facebook");
+  assert.equal(facebook.leadStatus, "Messaged");
+  assert.match(facebook.activityLog ?? "", /^2026-11-19 8:55 PM ET · Status changed: Read -> Messaged\n2026-11-19 8:55 PM ET · Messaged on Facebook$/);
 
   const email = applyContactLog(lead({ activityLog: "" }), "email", when, "morgan@loyalisthomesinc.com");
   assert.equal(email.lastAction, "Emailed");

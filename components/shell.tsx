@@ -26,7 +26,7 @@ export function Shell({ demo = false, children }: { demo?: boolean; children: Re
         <div className="h-1 bg-accent" />
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
           <Link href="/" className="flex min-w-0 items-center gap-3">
-            <BrandMark tone="light" className="h-10 w-auto sm:h-12" />
+            <BrandMark className="h-16 w-auto sm:h-20" />
             <span className="hidden min-w-0 sm:block">
               <span className="block font-display text-xl uppercase leading-none tracking-wide text-ink">
                 Lead Centre
@@ -61,7 +61,7 @@ export function Shell({ demo = false, children }: { demo?: boolean; children: Re
             <button
               type="button"
               onClick={() => void signOut()}
-              className="min-h-11 rounded-xl px-3 text-sm font-semibold text-navy hover:bg-paper"
+              className="min-h-11 whitespace-nowrap rounded-xl px-2 text-sm font-semibold text-navy hover:bg-paper sm:px-3"
             >
               Sign out
             </button>
@@ -70,7 +70,7 @@ export function Shell({ demo = false, children }: { demo?: boolean; children: Re
       </header>
       {children}
       <footer className="mx-auto max-w-6xl px-4 py-8 text-xs leading-5 text-muted">
-        <p>Loyalist Homes &amp; Restoration, a division of Loyalist Homes Group. Times shown in Eastern Time (America/Toronto).</p>
+        <p>Rural Building Solutions, a Loyalist Homes Group company. Times shown in Eastern Time (America/Toronto).</p>
         <p className="mt-1">Calls, messages, and notes stay on the lead so the next person can pick it up.</p>
       </footer>
     </div>

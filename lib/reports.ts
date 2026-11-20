@@ -9,6 +9,7 @@ export const PIPELINE_STATUSES = [
   "Unread",
   "Read",
   "Called",
+  "Messaged",
   "Emailed",
   "Qualified",
   "Non-Qualified",
@@ -140,7 +141,7 @@ function methodCounts(leads: Lead[]): { label: string; count: number }[] {
       if (/· Call(?: ·|$)/.test(line)) {
         calls += 1;
         logged += 1;
-      } else if (/· Facebook(?: ·|$)/.test(line)) {
+      } else if (/· (?:Facebook|Messaged on Facebook)(?: ·|$)/.test(line)) {
         facebook += 1;
         logged += 1;
       } else if (/· Email(?: ·|$)/.test(line)) {
