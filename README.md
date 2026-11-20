@@ -29,6 +29,20 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). The dashboard refreshes about once a minute. Opening an Unread lead marks it Read and sets Read At.
 
+## Demo screenshots
+
+Desktop:
+
+![Sign in](docs/screenshots/login-desktop.png)
+![Dashboard](docs/screenshots/dashboard-desktop.png)
+![Lead detail](docs/screenshots/lead-detail-desktop.png)
+
+Phone:
+
+![Sign in on a phone](docs/screenshots/login-mobile.png)
+![Dashboard on a phone](docs/screenshots/dashboard-mobile.png)
+![Lead detail on a phone](docs/screenshots/lead-detail-mobile.png)
+
 ## Airtable token
 
 1. Open [airtable.com/create/tokens](https://airtable.com/create/tokens).
