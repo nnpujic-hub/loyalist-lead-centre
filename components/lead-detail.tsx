@@ -297,6 +297,11 @@ export function LeadDetail({ id }: { id: string }) {
                       Called
                     </Button>
                   ) : null}
+                  {statusAvailable(options, "Emailed") ? (
+                    <Button type="button" variant="ghost" disabled={busy} onClick={() => void perform({ type: "emailed" })}>
+                      Emailed
+                    </Button>
+                  ) : null}
                   {statusAvailable(options, "Qualified") ? (
                     <Button type="button" variant="navy" disabled={busy} onClick={() => void perform({ type: "qualified" })}>
                       Qualified

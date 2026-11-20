@@ -2,6 +2,7 @@ const styles: Record<string, string> = {
   Unread: "bg-accent text-white",
   Read: "bg-navy text-white",
   Called: "bg-white text-accent ring-1 ring-inset ring-accent",
+  Emailed: "bg-white text-navy ring-1 ring-inset ring-navy",
   Qualified: "bg-success text-white",
   "Non-Qualified": "bg-muted text-white",
   Closed: "bg-ink text-white",

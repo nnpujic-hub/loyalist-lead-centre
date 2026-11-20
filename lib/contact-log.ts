@@ -46,6 +46,7 @@ export function applyContactLog(lead: Lead, action: ContactAction, now: Date, ac
     patch.messagedAt = nowIso;
   } else {
     patch.emailedAt = nowIso;
+    patch.leadStatus = "Emailed";
   }
   return patch;
 }
