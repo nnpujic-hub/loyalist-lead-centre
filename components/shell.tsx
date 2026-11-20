@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { BrandMark } from "@/components/brand-mark";
 
 export function Shell({ demo = false, children }: { demo?: boolean; children: ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
 
   async function signOut() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -35,7 +36,23 @@ export function Shell({ demo = false, children }: { demo?: boolean; children: Re
               </span>
             </span>
           </Link>
-          <div className="ml-auto flex items-center gap-2 sm:gap-3">
+          <nav className="ml-auto flex items-center gap-1 sm:gap-2" aria-label="Sections">
+            <Link
+              href="/"
+              aria-current={pathname === "/" ? "page" : undefined}
+              className={`inline-flex min-h-11 items-center rounded-xl px-3 text-sm font-semibold ${pathname === "/" ? "bg-ink text-white" : "text-navy hover:bg-paper"}`}
+            >
+              Leads
+            </Link>
+            <Link
+              href="/reports"
+              aria-current={pathname.startsWith("/reports") ? "page" : undefined}
+              className={`inline-flex min-h-11 items-center rounded-xl px-3 text-sm font-semibold ${pathname.startsWith("/reports") ? "bg-ink text-white" : "text-navy hover:bg-paper"}`}
+            >
+              Reports
+            </Link>
+          </nav>
+          <div className="flex items-center gap-2 sm:gap-3">
             {demo ? (
               <span className="rounded-full bg-paper px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-accent">
                 Demo

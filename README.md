@@ -95,6 +95,10 @@ The password check lives in `lib/password.ts`. A valid sign-in calls `issueSessi
 
 To plug this into Loyalist Homes OS or an SSO provider, replace the login route with the provider callback and issue a session (today the subject is `"team"`; it can become a user id). The dashboard, lead routes, and `proxy.ts` gate can stay as they are.
 
+## Reports
+
+`/reports` summarizes response speed for the signed-in team. The default range is the last 30 days. A lead counts as contacted at the earliest of Called At, Messaged At, and Emailed At. Created time is Meta Created At, then a parseable Lead Created Time, then the Airtable record time. Rates show n/a when the range has no leads.
+
 ## What the desk writes
 
 Actions update Leads only, with `typecast: true` where a select or collaborator value is sent:
