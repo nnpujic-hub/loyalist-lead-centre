@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { ApiError, api } from "@/lib/api-client";
+import { optimisticContact, type ContactAction } from "@/lib/contact-log";
 import { formatDateTime, formatDays, formatMoney } from "@/lib/format";
 import { isFollowUpDue } from "@/lib/lead-view";
 import type { FieldOptions, Lead, LeadAction, LeadResponse } from "@/lib/types";
@@ -155,22 +156,56 @@ export function LeadDetail({ id }: { id: string }) {
     }
   }
 
+  function logContact(action: ContactAction) {
+    if (!lead) return;
+    const current = lead;
+    setLead(optimisticContact(current, action));
+    const body = JSON.stringify({ action });
+    void fetch(`/api/leads/${current.id}/action`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body,
+      keepalive: true,
+    })
+      .then(async (response) => {
+        const payload = (await response.json().catch(() => null)) as { error?: string; lead?: Lead; options?: FieldOptions } | null;
+        if (response.status === 401) {
+          router.push("/login");
+          return;
+        }
+        if (!response.ok || !payload || !("lead" in payload) || !payload.lead) {
+          setError(payload && "error" in payload && payload.error ? payload.error : "Could not record that action.");
+          setLead(current);
+          return;
+        }
+        setLead(payload.lead);
+        if (payload.options) setOptions(payload.options);
+        setNotice("Saved.");
+      })
+      .catch(() => {
+        setError("Could not record that action.");
+        setLead(current);
+      });
+  }
+
   function callLead() {
     if (!lead?.callLink) return;
-    void perform({ type: "call" });
-    window.location.href = lead.callLink;
+    const href = lead.callLink;
+    logContact("call");
+    window.location.href = href;
   }
 
   function messageLead() {
     if (!lead?.replyOnFacebook) return;
     window.open(lead.replyOnFacebook, "_blank", "noopener,noreferrer");
-    void perform({ type: "message" });
+    logContact("facebook");
   }
 
   function emailLead() {
     if (!lead?.emailLink) return;
-    void perform({ type: "email" });
-    window.location.href = lead.emailLink;
+    const href = lead.emailLink;
+    logContact("email");
+    window.location.href = href;
   }
 
   const busy = pending !== null;
@@ -257,6 +292,11 @@ export function LeadDetail({ id }: { id: string }) {
                   </p>
                 ) : null}
                 <div className="mt-5 flex flex-wrap gap-2">
+                  {statusAvailable(options, "Called") ? (
+                    <Button type="button" variant="ghost" disabled={busy} onClick={() => void perform({ type: "called" })}>
+                      Called
+                    </Button>
+                  ) : null}
                   {statusAvailable(options, "Qualified") ? (
                     <Button type="button" variant="navy" disabled={busy} onClick={() => void perform({ type: "qualified" })}>
                       Qualified
@@ -368,6 +408,7 @@ export function LeadDetail({ id }: { id: string }) {
                     { label: "Source", value: show(lead.source) },
                     { label: "Called at", value: formatDateTime(lead.calledAt) },
                     { label: "Messaged at", value: formatDateTime(lead.messagedAt) },
+                    { label: "Emailed at", value: formatDateTime(lead.emailedAt) },
                     { label: "Call outcome", value: show(lead.callOutcome) },
                   ]}
                 />
@@ -438,6 +479,10 @@ export function LeadDetail({ id }: { id: string }) {
                 <blockquote className="mt-2 border-l-4 border-accent bg-paper px-4 py-3 text-sm leading-6">
                   {lead.clientComments || "No comments on the form."}
                 </blockquote>
+                <h3 className="mt-5 text-sm font-semibold">Activity log</h3>
+                <pre className="mt-2 whitespace-pre-wrap rounded-xl bg-paper px-4 py-3 font-sans text-sm leading-6">
+                  {lead.activityLog || "No calls, messages, or emails recorded yet."}
+                </pre>
                 <h3 className="mt-5 text-sm font-semibold">Team notes</h3>
                 <pre className="mt-2 whitespace-pre-wrap rounded-xl bg-paper px-4 py-3 font-sans text-sm leading-6">
                   {lead.notes || "No team notes yet."}

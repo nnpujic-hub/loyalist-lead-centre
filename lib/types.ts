@@ -24,10 +24,12 @@ export type Lead = {
   readAt: string | null;
   calledAt: string | null;
   messagedAt: string | null;
+  emailedAt: string | null;
   estimateSentAt: string | null;
   followUpDate: string | null;
   plaudTranscript: Attachment[];
   notes: string;
+  activityLog: string;
   leadCreatedTime: string;
   metaRecordId: string;
   metaLeadId: string;
@@ -82,6 +84,7 @@ export type LeadAction =
   | { type: "call" }
   | { type: "message" }
   | { type: "email" }
+  | { type: "called" }
   | { type: "callOutcome"; outcome: string }
   | { type: "qualified" }
   | { type: "nonQualified"; reason: string }
@@ -96,9 +99,11 @@ export type LeadPatch = {
   readAt?: string;
   calledAt?: string;
   messagedAt?: string;
+  emailedAt?: string;
   estimateSentAt?: string;
   followUpDate?: string | null;
   notes?: string;
+  activityLog?: string;
   assignedTo?: Assignee | null;
   lastAction?: string;
   lastActionAt?: string;

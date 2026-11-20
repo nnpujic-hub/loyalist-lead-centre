@@ -1,3 +1,4 @@
+import { applyContactLog, type ContactAction } from "@/lib/contact-log";
 import { LeadError } from "@/lib/errors";
 import { appendNote } from "@/lib/lead-view";
 import type { Assignee, Lead, LeadAction, LeadPatch, LeadSchema } from "@/lib/types";
@@ -7,9 +8,11 @@ const WRITABLE = new Set([
   "Read At",
   "Called At",
   "Messaged At",
+  "Emailed At",
   "Estimate Sent At",
   "Follow-up Date",
   "Notes",
+  "Activity Log",
   "Assigned To",
   "Last Action",
   "Last Action At",
@@ -98,23 +101,18 @@ export function buildPatch(
       stampLastAction(["Marked Read"]);
       break;
     }
-    case "call": {
-      if (canWrite(schema, "Called At")) patch.calledAt = nowIso;
-      else notices.push("Called At is not on the Leads table, so the call time was not saved.");
-      stampLastAction(["Called"]);
-      break;
-    }
-    case "message": {
-      if (canWrite(schema, "Messaged At")) patch.messagedAt = nowIso;
-      else notices.push("Messaged At is not on the Leads table, so the reply time was not saved.");
-      stampLastAction(["Messaged on Facebook"]);
-      break;
-    }
+    case "call":
+    case "message":
     case "email": {
-      stampLastAction(["Emailed"]);
-      if (!patch.lastAction && !patch.lastActionAt) {
-        notices.push("Last Action is not available, so the email was not logged.");
+      const contact: ContactAction = action.type === "message" ? "facebook" : action.type;
+      Object.assign(patch, applyContactLog(lead, contact, ctx.now, null));
+      break;
+    }
+    case "called": {
+      if (!canWrite(schema, "Lead Status")) {
+        throw new LeadError("Lead Status is not on the Leads table.");
       }
+      patch.leadStatus = "Called";
       break;
     }
     case "callOutcome": {
@@ -233,9 +231,11 @@ export function toAirtableFields(
   if (patch.readAt !== undefined) put("Read At", patch.readAt);
   if (patch.calledAt !== undefined) put("Called At", patch.calledAt);
   if (patch.messagedAt !== undefined) put("Messaged At", patch.messagedAt);
+  if (patch.emailedAt !== undefined) put("Emailed At", patch.emailedAt);
   if (patch.estimateSentAt !== undefined) put("Estimate Sent At", patch.estimateSentAt);
   if ("followUpDate" in patch) put("Follow-up Date", patch.followUpDate);
   if (patch.notes !== undefined) put("Notes", patch.notes);
+  if (patch.activityLog !== undefined) put("Activity Log", patch.activityLog);
   if ("assignedTo" in patch) {
     put("Assigned To", patch.assignedTo ? { id: patch.assignedTo.id } : null);
   }

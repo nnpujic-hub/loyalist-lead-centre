@@ -25,6 +25,7 @@ export function parseAction(body: unknown): LeadAction {
     case "message":
     case "email":
     case "qualified":
+    case "called":
       return { type };
     case "callOutcome": {
       const outcome = data?.outcome;
