@@ -44,6 +44,23 @@ export function formatNoteStamp(date = new Date()): string {
   return `${formatDateTime(date.toISOString())} ET`;
 }
 
+/** `2026-11-19 8:55 PM ET` in America/Toronto. */
+export function formatActivityStamp(date = new Date()): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: TORONTO,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).formatToParts(date);
+  const get = (type: string) => parts.find((part) => part.type === type)?.value ?? "";
+  const period = get("dayPeriod").replace(/\./g, "").toUpperCase().startsWith("A") ? "AM" : "PM";
+  const hour = String(Number(get("hour")));
+  return `${get("year")}-${get("month")}-${get("day")} ${hour}:${get("minute")} ${period} ET`;
+}
+
 export function formatDays(days: number | null): string {
   if (days == null) return "—";
   if (days === 0) return "Today";

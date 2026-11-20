@@ -9,7 +9,8 @@ import {
   optionsFromSchema,
   patchAirtableRecord,
 } from "@/lib/airtable";
-import { demoList, demoOpen, demoUpdate } from "@/lib/demo-data";
+import { applyContactLog, type ContactAction } from "@/lib/contact-log";
+import { demoList, demoLogContact, demoOpen, demoUpdate } from "@/lib/demo-data";
 import { LeadError } from "@/lib/errors";
 import { buildPatch, isEmptyPatch, toAirtableFields } from "@/lib/patch";
 import type { LeadAction, LeadListResponse, LeadResponse } from "@/lib/types";
@@ -49,6 +50,22 @@ export async function openLead(id: string): Promise<LeadResponse> {
     lead,
     options: optionsFromSchema(schema, assigneeDirectory()),
     notices: [...notices, ...skipped],
+  };
+}
+
+export async function logContact(id: string, action: ContactAction, actor: string | null): Promise<LeadResponse> {
+  if (isDemoMode()) return demoLogContact(id, action, actor);
+  const schema = await getLeadSchema();
+  const existing = await getAirtableRecord(id);
+  const patch = applyContactLog(existing, action, new Date(), actor);
+  const { fields, notices } = toAirtableFields(patch, schema);
+  const lead = Object.keys(fields).length === 0 ? existing : await patchAirtableRecord(id, fields);
+  return {
+    demo: false,
+    generatedAt: new Date().toISOString(),
+    lead,
+    options: optionsFromSchema(schema, assigneeDirectory()),
+    notices,
   };
 }
 

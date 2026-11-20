@@ -14,6 +14,7 @@ import { StatusBadge } from "@/components/status-badge";
 const FILTERS = [
   { id: "Unread", label: "Unread" },
   { id: "Read", label: "Read" },
+  { id: "Called", label: "Called" },
   { id: "Qualified", label: "Qualified" },
   { id: "Non-Qualified", label: "Non-Qualified" },
   { id: "Closed", label: "Closed" },
@@ -91,6 +92,7 @@ export function Dashboard() {
   const counts = {
     Unread: mine.filter((lead) => lead.leadStatus === "Unread").length,
     Read: mine.filter((lead) => lead.leadStatus === "Read").length,
+    Called: mine.filter((lead) => lead.leadStatus === "Called").length,
     Qualified: mine.filter((lead) => lead.leadStatus === "Qualified").length,
     "Non-Qualified": mine.filter((lead) => lead.leadStatus === "Non-Qualified").length,
     Closed: mine.filter((lead) => lead.leadStatus === "Closed").length,
@@ -145,7 +147,7 @@ export function Dashboard() {
           </p>
         ) : null}
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-8">
           {FILTERS.map((item) => {
             const active = filter === item.id;
             const count = counts[item.id];

@@ -1,5 +1,6 @@
 import "server-only";
 
+import { applyContactLog, type ContactAction } from "@/lib/contact-log";
 import { formatDateTime, shiftTorontoDate, torontoWallTime } from "@/lib/format";
 import { presentLead } from "@/lib/lead-view";
 import { buildPatch, isEmptyPatch } from "@/lib/patch";
@@ -36,10 +37,12 @@ function blankLead(partial: Partial<Lead> & Pick<Lead, "id" | "name">): Lead {
     readAt: null,
     calledAt: null,
     messagedAt: null,
+    emailedAt: null,
     estimateSentAt: null,
     followUpDate: null,
     plaudTranscript: [],
     notes: "",
+    activityLog: "",
     leadCreatedTime: formatDateTime(created),
     metaRecordId: "",
     metaLeadId: "",
@@ -124,13 +127,14 @@ function seed(): Lead[] {
       phone: "(613) 555-0194",
       email: "nora.pelletier@example.com",
       postalCode: "K7L 4V1",
-      leadStatus: "Read",
+      leadStatus: "Called",
       statusLegacy: "Called",
       readAt: at(2, 11, 35),
       calledAt: at(2, 11, 42),
       callOutcome: "No Answer",
       lastAction: "Called - No Answer",
       lastActionAt: at(2, 11, 42),
+      activityLog: "2026-11-18 11:42 AM ET · Call",
       assignedTo: AVERY,
       clientComments: "Infill lot in Kingston. Asked what a simple two-storey would run.",
       adName: "City lot custom builds",
@@ -319,7 +323,7 @@ function demoSchema(): LeadSchema {
       field("Plaud Transcript", "multipleAttachments"),
       field("Notes", "multilineText"),
       field("Lead Created Time", "singleLineText"),
-      field("Lead Status", "singleSelect", ["Unread", "Read", "Qualified", "Non-Qualified", "Closed"]),
+      field("Lead Status", "singleSelect", ["Unread", "Read", "Called", "Qualified", "Non-Qualified", "Closed"]),
       field("META Record ID", "singleLineText"),
       field("Meta Lead ID", "singleLineText"),
       field("Postal Code", "singleLineText"),
@@ -333,9 +337,12 @@ function demoSchema(): LeadSchema {
       field("Assigned To", "singleCollaborator"),
       field("Meta Created At", "dateTime"),
       field("Messaged At", "dateTime"),
+      field("Emailed At", "dateTime"),
+      field("Activity Log", "multilineText"),
       field("Last Action At", "dateTime"),
       field("Last Action", "singleSelect", [
         "Marked Read",
+        "Called",
         "Called - Answered",
         "Called - No Answer",
         "Left Voicemail",
@@ -451,6 +458,29 @@ export function demoOpen(id: string): LeadResponse {
     lead,
     options: demoOptions(),
     notices,
+  };
+}
+
+export function demoLogContact(id: string, action: ContactAction, actor: string | null): LeadResponse {
+  assertRecordId(id);
+  const index = state.findIndex((lead) => lead.id === id);
+  if (index === -1) throw new LeadError("That lead could not be found.", 404);
+  const current = state[index];
+  state[index] = { ...current, ...applyContactLog(current, action, new Date(), actor) };
+  return {
+    demo: true,
+    generatedAt: new Date().toISOString(),
+    lead: presentLead({
+      ...state[index],
+      daysSinceLead: null,
+      followUpDue: null,
+      platformName: "",
+      callLink: "",
+      emailLink: "",
+      replyOnFacebook: "",
+    }),
+    options: demoOptions(),
+    notices: [],
   };
 }
 
