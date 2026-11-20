@@ -115,9 +115,11 @@ export function buildPatch(
       break;
     }
     case "called":
+    case "messaged":
     case "emailed":
     case "qualified": {
-      const nextStatus = action.type === "called" ? "Called" : action.type === "emailed" ? "Emailed" : "Qualified";
+      const nextStatus =
+        action.type === "called" ? "Called" : action.type === "messaged" ? "Messaged" : action.type === "emailed" ? "Emailed" : "Qualified";
       if (!canWrite(schema, "Lead Status")) {
         throw new LeadError("Lead Status is not on the Leads table.");
       }

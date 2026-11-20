@@ -13,7 +13,7 @@ const LAST_ACTION: Record<ContactAction, string> = {
 
 const LOG_LABEL: Record<ContactAction, string> = {
   call: "Call",
-  facebook: "Facebook",
+  facebook: "Messaged on Facebook",
   email: "Email",
 };
 
@@ -61,6 +61,10 @@ export function applyContactLog(lead: Lead, action: ContactAction, now: Date, ac
     patch.leadStatus = "Called";
   } else if (action === "facebook") {
     patch.messagedAt = nowIso;
+    patch.leadStatus = "Messaged";
+    if (lead.leadStatus !== "Messaged") {
+      patch.activityLog = prependActivity(patch.activityLog ?? "", summaryLine(statusChangeSummary(lead.leadStatus, "Messaged"), now));
+    }
   } else {
     patch.emailedAt = nowIso;
     patch.leadStatus = "Emailed";

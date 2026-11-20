@@ -107,8 +107,8 @@ Actions update Leads only, with `typecast: true` where a select or collaborator 
 - Mark as Unread sets Lead Status back to Unread, logs the change, and returns to the lead list so opening the record does not immediately mark it Read again.
 - Status buttons, call outcomes, estimates, follow-up dates, assignment, and notes each prepend a timestamped Activity Log line and update Last Action and Last Action At.
 - Call opens the `tel:` link immediately, then records Called At, Last Action `Called`, Last Action At, and Lead Status Called. The line is prepended to Activity Log.
-- Reply on Facebook opens the inbox in a new tab and records Messaged At, Last Action `Messaged on Facebook`, and Last Action At.
-- Email opens `mailto:` and records Emailed At, Last Action `Emailed`, Last Action At, and Lead Status Emailed. Facebook does not change Lead Status.
+- Reply on Facebook opens the inbox in a new tab and records Messaged At, Last Action `Messaged on Facebook`, Last Action At, and Lead Status Messaged.
+- Email opens `mailto:` and records Emailed At, Last Action `Emailed`, Last Action At, and Lead Status Emailed.
 - Each of those three clicks is logged with `typecast: true` through `POST /api/leads/[id]/action`. The call-outcome buttons still set Call Outcome and the matching Last Action (`Called - Answered`, `Called - No Answer`, `Left Voicemail`, and any other options Airtable returns).
 - Qualified, Non-Qualified (with a reason), and Closed (Won or Lost) update Lead Status.
 - Estimate sent sets Estimate Sent At and, if you enter one, Estimate Amount.

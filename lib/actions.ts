@@ -26,6 +26,7 @@ export function parseAction(body: unknown): LeadAction {
     case "email":
     case "qualified":
     case "called":
+    case "messaged":
     case "emailed":
     case "unread":
       return { type };

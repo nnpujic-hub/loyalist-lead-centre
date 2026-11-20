@@ -85,6 +85,7 @@ export type LeadAction =
   | { type: "message" }
   | { type: "email" }
   | { type: "called" }
+  | { type: "messaged" }
   | { type: "emailed" }
   | { type: "unread" }
   | { type: "callOutcome"; outcome: string }

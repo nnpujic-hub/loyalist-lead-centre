@@ -33,9 +33,7 @@ export function LoginForm() {
   return (
     <div className="grid min-h-dvh lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
       <section className="flex flex-col bg-black px-6 py-10 text-white lg:px-12 lg:py-16">
-        <div className="w-full max-w-md rounded-2xl bg-white p-4 sm:p-5">
-          <BrandMark className="h-auto w-full" />
-        </div>
+        <BrandMark tone="dark" className="h-auto w-full max-w-md" />
         <div className="mt-10 max-w-md">
           <h1 className="font-display text-5xl uppercase leading-[0.95] tracking-wide sm:text-6xl">Lead Centre</h1>
           <p className="mt-5 max-w-sm text-base leading-7 text-white/80">

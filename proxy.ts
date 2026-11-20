@@ -36,5 +36,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|rbs-logo.png|sample-transcript.txt).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|rbs-logo.png|rbs-logo-dark-bg.png|sample-transcript.txt).*)"],
 };
